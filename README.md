@@ -1,4 +1,4 @@
-"# Compozents_Task" 
+# Compozents_Task 
 # Python Exercises and Projects
 
 This repository contains solutions to Python exercises and tasks, including basic Python programming, API development using Flask, and a machine learning project.
