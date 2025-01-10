@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { padding: 10px; margin: 5px; }
+        ul { list-style-type: none; }
+        li { margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<h1>Task Management System</h1>
+
+<h3>Add Task</h3>
+<input type="text" id="title" placeholder="Task Title" />
+<input type="text" id="description" placeholder="Task Description" />
+<button onclick="createTask()">Add Task</button>
+
+<h3>All Tasks</h3>
+<ul id="task-list"></ul>
+
+<script>
+    const apiUrl = "http://127.0.0.1:5000"; // Adjust the URL if necessary
+
+    async function fetchTasks() {
+        const response = await fetch(apiUrl + '/tasks');
+        const tasks = await response.json();
+        const taskList = document.getElementById("task-list");
+        taskList.innerHTML = '';
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.textContent = `${task.title}: ${task.description} [Done: ${task.done}]`;
+            li.innerHTML += `<button onclick="deleteTask(${task.id})">Delete</button>`;
+            li.innerHTML += `<button onclick="editTask(${task.id})">Edit</button>`;
+            taskList.appendChild(li);
+        });
+    }
+
+    async function createTask() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const response = await fetch(apiUrl + '/task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description })
+        });
+        const task = await response.json();
+        fetchTasks(); // Refresh task list
+    }
+
+    async function deleteTask(taskId) {
+        await fetch(apiUrl + `/task/${taskId}`, { method: 'DELETE' });
+        fetchTasks(); // Refresh task list
+    }
+
+    async function editTask(taskId) {
+        const newTitle = prompt("Enter new title:");
+        const newDescription = prompt("Enter new description:");
+        await fetch(apiUrl + `/task/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, description: newDescription })
+        });
+        fetchTasks(); // Refresh task list
+    }
+
+    fetchTasks(); // Load tasks initially
+</script>
+
+</body>
+</html>
